@@ -12,8 +12,6 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import { Socket } from 'socket.io'
 import { checkInitialSetup } from './functions/initialSetup'
-import { getInternalId } from './functions/internalId'
-import { getOrderNumber } from './functions/orderNumber'
 import {
   assingOpenTicket,
   createNewTicket,
@@ -25,6 +23,7 @@ import {
   checkDeskAvailability,
   createDeskAvailability,
 } from './functions/checkDeskAvailability'
+import { initiatePrinter, newPrint } from './printer'
 
 const handleNewTicket = async (data: any) => {
   console.log('NewRecord', data)
@@ -43,7 +42,12 @@ const handleNewTicket = async (data: any) => {
     io.sockets.emit('NEW_PENDING_COUNT', created)
   }
   console.log('PRINT NEW NUMBER')
-  io.sockets.emit('NEW_TICKET', created?.orderNumber)
+  io.sockets.emit('NEW_TICKET', created)
+}
+
+const handleNewPrint = (data: any) => {
+  const { printData } = data
+  newPrint(printData)
 }
 
 const handleAvailability = async (data: any) => {
@@ -102,26 +106,13 @@ io.use((socket, next: () => void) => {
   }
   console.log('Connected', serviceId)
   socket.on('NEW_TICKET', handleNewTicket)
+  socket.on('NEW_PRINT', handleNewPrint)
   socket.on('NEW_AVAILABILITY', handleAvailability)
   socket.on('TICKET_CLOSED', handleTicketClose)
   socket.on('disconnect', (data) => console.log('opa2', data))
 })
 
-app.get('/', (req, res) => {
-  res.send('<h4>TEST</h4>')
-})
-
 checkInitialSetup()
-
-// const aa ={
-//   "internalId": 4,
-//   "serviceId": 12321,
-//   "orderNumber": 70,
-//   "deskId": 2,
-//   "deskType": 1000,
-//   "deskNumber": 2,
-//   assignee: "",
-//   status: ""
-// },
+initiatePrinter()
 
 server.listen(PORT, () => console.log(`Server ok! and running on ${PORT}`))

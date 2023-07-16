@@ -1,8 +1,16 @@
 import { findByIds, Device, Endpoint } from 'usb'
-import React from "react"
+import React from 'react'
 import {
-    Printer, Br, Cut, Line, Text, Row, render ,QRCode
-} from "react-thermal-printer"
+  Printer,
+  Br,
+  Cut,
+  Line,
+  Text,
+  Row,
+  render,
+  QRCode,
+} from 'react-thermal-printer'
+import { getPrintLocationData } from './config'
 
 let device: Device
 let outEnd: Endpoint
@@ -22,31 +30,67 @@ export const initiatePrinter = () => {
   device.interfaces[0].claim()
 }
 
+export const getNewTicketPrintData = async (data: {
+  orderNumber: number
+  waiting: number
+  serviceId: number
+}) => {
+  const { orderNumber, waiting, serviceId } = data
+  const { counters, rooms, serviceName, locationName, address } =
+    getPrintLocationData(serviceId)
+  const date = new Date()
+  const displayDate = `${date.getDate()}.${
+    date.getMonth() + 1
+  }.${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 
+  const receipt = (
+    <Printer type="epson" width={32} characterSet="pc437_usa">
+      <Text size={{ width: 2, height: 2 }} align="left">
+        {locationName}
+      </Text>
+      <Text align="left">{address}</Text>
+      <Br />
 
-export const getPrintData = async () => {
+      <Text bold={true} size={{ width: 6, height: 7 }} align="center">
+        {orderNumber}
+      </Text>
+      <Br />
+      <Text align="left">{serviceName}</Text>
+      {counters && (
+        <>
+          <Text align="left">{counters}</Text>
+        </>
+      )}
+      {rooms && (
+        <>
+          <Text align="left">{rooms}</Text>
+        </>
+      )}
+      <Br />
+      <Text align="left">Broj Stranaka prije vas: {waiting - 1}</Text>
+      <Br />
+      <Text align="right">{displayDate}</Text>
 
-  const receipt = (<Printer children type="epson" width={32} characterSet="pc437_usa"> 
-<Cut/> 
-</Printer>)
-    const data: Uint8Array = await render(receipt)
-    return data
+      <Cut />
+    </Printer>
+  )
+
+  return await render(receipt)
 }
 
-export const newPrint = (data: Uint8Array) => {
-  // if(!data) {
-  //   data = 
-  // }
+export const newPrint = async (data: {
+  orderNumber: number
+  waiting: number
+  serviceId: number
+}) => {
+  const printData = await getNewTicketPrintData(data)
   // @ts-ignore
-  outEnd.transfer(data, (error) => {
+  outEnd.transfer(printData, (error) => {
     if (error) {
       console.log('ERROR:', error)
     }
   })
 }
-
-
-
 
 // inEnd.on("data", ((data) => {
 //   console.log("DATA:", data)

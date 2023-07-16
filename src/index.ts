@@ -24,7 +24,6 @@ import {
   createDeskAvailability,
 } from './functions/checkDeskAvailability'
 import { initiatePrinter, newPrint } from './printer'
-import { getPrintData } from './print'
 
 const handleNewTicket = async (data: any) => {
   console.log('NewRecord', data)
@@ -42,14 +41,8 @@ const handleNewTicket = async (data: any) => {
     created = await createNewTicket(data)
     io.sockets.emit('NEW_PENDING_COUNT', created)
   }
-  console.log('PRINT NEW NUMBER')
+  newPrint(created)
   io.sockets.emit('NEW_TICKET', created)
-}
-
-const handleNewPrint = async (data: any) => {
-  const aa = await getPrintData()
-  // const { printData } = data
-  newPrint(aa)
 }
 
 const handleAvailability = async (data: any) => {
@@ -108,7 +101,7 @@ io.use((socket, next: () => void) => {
   }
   console.log('Connected', serviceId)
   socket.on('NEW_TICKET', handleNewTicket)
-  socket.on('NEW_PRINT', handleNewPrint)
+  // socket.on('NEW_PRINT', handleNewPrint)
   socket.on('NEW_AVAILABILITY', handleAvailability)
   socket.on('TICKET_CLOSED', handleTicketClose)
   socket.on('disconnect', (data) => console.log('opa2', data))

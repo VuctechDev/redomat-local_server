@@ -24,6 +24,7 @@ import {
   createDeskAvailability,
 } from './functions/checkDeskAvailability'
 import { initiatePrinter, newPrint } from './printer'
+import { getPrintData } from './print'
 
 const handleNewTicket = async (data: any) => {
   console.log('NewRecord', data)
@@ -45,9 +46,10 @@ const handleNewTicket = async (data: any) => {
   io.sockets.emit('NEW_TICKET', created)
 }
 
-const handleNewPrint = (data: any) => {
-  const { printData } = data
-  newPrint(printData)
+const handleNewPrint = async (data: any) => {
+  const aa = await getPrintData()
+  // const { printData } = data
+  newPrint(aa)
 }
 
 const handleAvailability = async (data: any) => {

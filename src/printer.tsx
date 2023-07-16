@@ -1,4 +1,8 @@
 import { findByIds, Device, Endpoint } from 'usb'
+import React from "react"
+import {
+    Printer, Br, Cut, Line, Text, Row, render ,QRCode
+} from "react-thermal-printer"
 
 let device: Device
 let outEnd: Endpoint
@@ -18,7 +22,21 @@ export const initiatePrinter = () => {
   device.interfaces[0].claim()
 }
 
-export const newPrint = (data: number[]) => {
+
+
+export const getPrintData = async () => {
+
+  const receipt = (<Printer children type="epson" width={32} characterSet="pc437_usa"> 
+<Cut/> 
+</Printer>)
+    const data: Uint8Array = await render(receipt)
+    return data
+}
+
+export const newPrint = (data: Uint8Array) => {
+  // if(!data) {
+  //   data = 
+  // }
   // @ts-ignore
   outEnd.transfer(data, (error) => {
     if (error) {
@@ -26,6 +44,9 @@ export const newPrint = (data: number[]) => {
     }
   })
 }
+
+
+
 
 // inEnd.on("data", ((data) => {
 //   console.log("DATA:", data)

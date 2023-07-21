@@ -1,0 +1,6 @@
+- availability da se ne zapisuje u file sistem vec u memoriju, koja je prednost? 
+Svakako se mora refresh clienta ako padne server 
+- Ja sam slobodan: 
+    - evo tiket koji je ostao 
+    - evo sledeci tiket
+    - nema trenutno tiketa ali znamo da si slobodan

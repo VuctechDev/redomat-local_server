@@ -18,7 +18,7 @@ const services = [
         number: 2,
       },
       {
-        id: 22137,
+        id: 22139,
         type: 1000,
         number: 3,
       },
@@ -29,12 +29,12 @@ const services = [
     name: 'Izdavanje Pasosa',
     desks: [
       {
-        id: 22134,
+        id: 22135,
         type: 1001,
         number: 4,
       },
       {
-        id: 22139,
+        id: 22136,
         type: 1001,
         number: 5,
       },
@@ -45,7 +45,7 @@ const services = [
     name: 'Registracija Vozila',
     desks: [
       {
-        id: 22134,
+        id: 22130,
         type: 1000,
         number: 5,
       },
@@ -56,7 +56,7 @@ const services = [
     name: 'Preuzimanje Licnih Dokumenata',
     desks: [
       {
-        id: 22134,
+        id: 22131,
         type: 1000,
         number: 6,
       },
@@ -65,10 +65,10 @@ const services = [
 ]
 
 export const data = {
-  id: 123456,
+  _id: 123456,
   name: 'CIPS',
   location: {
-    id: 1000,
+    _id: 1000,
     city: 'Banja Luka',
     address: 'Jovana Ducica 7a',
     code: 78000,

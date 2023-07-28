@@ -1,5 +1,5 @@
-import { data as locationData } from './config'
 import fs from 'fs'
+import { http } from './api'
 
 export interface Ticket {
   internalId: number
@@ -15,9 +15,13 @@ export interface Availability {
   deskId: number
   socketId: string
   serviceId: number
+  employeeId: number
+  deskType: number
+  deskNumber: number
 }
 
 interface State {
+  config: { locale: 'sr' | 'en' }
   openTickets: Ticket[]
   availability: Availability[]
   logs: Ticket[]
@@ -25,10 +29,21 @@ interface State {
 }
 
 export let state: State = {
+  config: {
+    locale: 'en',
+  },
+  locationData: {},
   openTickets: [],
   availability: [],
   logs: [],
-  locationData: locationData,
+}
+
+
+export const getConfig = (key?: string) => {
+  if (key) {
+    return state.config[key]
+  }
+  return state.config
 }
 
 export const getLocationData = (key?: string) => {
@@ -154,10 +169,17 @@ export const getState = () => {
 }
 
 export const initState = async () => {
-  let openTickets = await JSON.parse(
-    fs.readFileSync(`openTickets.json`, 'utf8')
-  )
-  let logs = await JSON.parse(fs.readFileSync(`logs.json`, 'utf8'))
+  try {
+    const { config, locationData } = await http.get(`/config/${1000}`)
 
-  state = { ...state, openTickets, logs }
+    console.log("INIT DATA: ", config, locationData)
+    let openTickets = await JSON.parse(
+      fs.readFileSync(`openTickets.json`, 'utf8')
+    )
+    let logs = await JSON.parse(fs.readFileSync(`logs.json`, 'utf8'))
+
+    state = { ...state, config, locationData, openTickets, logs }
+  } catch (error) {
+    console.log('INIT_STATE_ERROR: ', error)
+  }
 }

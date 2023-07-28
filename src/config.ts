@@ -1,88 +1,29 @@
+import { getConfig, getLocationData } from './store'
+
 export default {
   id: 1000,
 }
 
-const services = [
-  {
-    id: 12321,
-    name: 'Izdavanje Licnih Karata',
-    desks: [
-      {
-        id: 22134,
-        type: 1000,
-        number: 1,
-      },
-      {
-        id: 22137,
-        type: 1000,
-        number: 2,
-      },
-      {
-        id: 22139,
-        type: 1000,
-        number: 3,
-      },
-    ],
+export const locales = {
+  sr: {
+    desk: 'Salter:',
+    room: 'Soba:',
+    waiting: 'Broj Stranaka prije vas:',
   },
-  {
-    id: 53678,
-    name: 'Izdavanje Pasosa',
-    desks: [
-      {
-        id: 22135,
-        type: 1001,
-        number: 4,
-      },
-      {
-        id: 22136,
-        type: 1001,
-        number: 5,
-      },
-    ],
+  en: {
+    desk: 'Desk:',
+    room: 'Room:',
+    waiting: 'Customers before you:',
   },
-  {
-    id: 56754,
-    name: 'Registracija Vozila',
-    desks: [
-      {
-        id: 22130,
-        type: 1000,
-        number: 5,
-      },
-    ],
-  },
-  {
-    id: 68786,
-    name: 'Preuzimanje Licnih Dokumenata',
-    desks: [
-      {
-        id: 22131,
-        type: 1000,
-        number: 6,
-      },
-    ],
-  },
-]
-
-export const data = {
-  _id: 123456,
-  name: 'CIPS',
-  location: {
-    _id: 1000,
-    city: 'Banja Luka',
-    address: 'Jovana Ducica 7a',
-    code: 78000,
-  },
-  services: services,
-  subservice: '',
 }
 
 const getDesksForServices = (data?: {
   desks: { number: number; type: number }[]
 }) => {
   if (data) {
-    let countersString = 'Salter: '
-    let roomsString = 'Soba: '
+    const locale = getConfig('locale')
+    let countersString = `${locales[locale].desk} `
+    let roomsString = `${locales[locale].room} `
     data.desks.forEach((item, i) => {
       if (item.type === 1000) {
         countersString += `${item.number}, `
@@ -104,18 +45,14 @@ const getDesksForServices = (data?: {
 }
 
 export const getPrintLocationData = (serviceId: number) => {
-  const {
-    name,
-    location: { city, address },
-    services,
-  } = data
+  const { name, city, address, mainLocationName, services } = getLocationData()
   const service = services.filter((item) => item.id === serviceId)[0]
   const { counters, rooms } = getDesksForServices(service)
   return {
     counters,
     rooms,
     serviceName: service.name,
-    locationName: name,
+    locationName: mainLocationName,
     address: `${city}, ${address}`,
   }
 }

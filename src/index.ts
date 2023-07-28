@@ -49,7 +49,7 @@ const handleNewTicket = async (data: any) => {
 }
 
 const handleAvailability = async (data: any) => {
-  // console.log('New Availability: ', data)
+  console.log('New Availability: ', data)
   const { serviceId, deskId } = data
   const openTickets = getOpenTickets() as Ticket[]
   const checkAssignment = openTickets
@@ -128,8 +128,6 @@ io.use((socket: Socket, next: () => void) => {
   handleConnect(socket)
 
   socket.on('NEW_TICKET', handleNewTicket)
-  // socket.on('NEW_PRINT', handleNewPrint)
-  // socket.on('DESK_INITIAL_STATE', () => handleDeskInitialState())
   socket.on('NEW_AVAILABILITY', (data) =>
     handleAvailability({ ...data, socketId: socket.id })
   )
@@ -140,7 +138,7 @@ io.use((socket: Socket, next: () => void) => {
 const init = async () => {
   await checkInitialSetup()
   await initState()
-  // console.log(getAvailability(536784))
+  initiatePrinter()
 }
 
 init()

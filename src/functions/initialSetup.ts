@@ -5,6 +5,7 @@ export const checkInitialSetup = async () => {
   const checkopenTickets = fs.existsSync('openTickets.json')
   const checkLogs = fs.existsSync('logs.json')
   const checkInternalId = fs.existsSync('internalId.txt')
+  const credit= fs.existsSync('credit.txt')
   if (!checkOrder) {
     fs.writeFileSync('orderNumber.txt', JSON.stringify(0))
   }
@@ -16,5 +17,8 @@ export const checkInitialSetup = async () => {
   }
   if (!checkInternalId) {
     fs.writeFileSync('internalId.txt', JSON.stringify(1))
+  }
+  if (!credit) {
+    fs.writeFileSync('credit.txt', JSON.stringify(0))
   }
 }

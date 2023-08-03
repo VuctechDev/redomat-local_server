@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { http } from './api'
+import { http } from './http'
 
 export interface Ticket {
   internalId: number
@@ -7,7 +7,7 @@ export interface Ticket {
   status: 'pending' | 'assigned' | 'done'
   serviceId: number
   created: number
-  updated: number
+  assigned: number
   deskId: number
 }
 
@@ -22,22 +22,25 @@ export interface Availability {
 
 interface State {
   config: { locale: 'sr' | 'en' }
+  credit: number
   openTickets: Ticket[]
   availability: Availability[]
   logs: Ticket[]
   locationData: any
 }
 
+export const deviceId = 100
+
 export let state: State = {
   config: {
     locale: 'en',
   },
+  credit: 0,
   locationData: {},
   openTickets: [],
   availability: [],
   logs: [],
 }
-
 
 export const getConfig = (key?: string) => {
   if (key) {
@@ -94,7 +97,7 @@ export const getPendingCount = (serviceId?: number) => {
     ).length
   } else {
     let countHandler = {}
-    state.locationData.services.forEach((item) => {
+    state.locationData?.services?.forEach((item) => {
       countHandler = { ...countHandler, [item.id]: 0 }
     })
     console.log('countHandler', countHandler)
@@ -168,17 +171,33 @@ export const getState = () => {
   return state
 }
 
+export const handleCredit = (data: {
+  action?: 'GET' | 'UPDATE' | 'REMOVE'
+  newValue?: number
+}) => {
+  const { action = 'GET', newValue } = data
+  if (action === 'GET') {
+    return state.credit
+  } else if (action === 'UPDATE') {
+    const handler = state.credit + newValue
+    state = { ...state, credit: handler }
+    fs.writeFileSync('credit.txt', JSON.stringify(handler))
+    return handler
+  }
+}
+
 export const initState = async () => {
   try {
-    const { config, locationData } = await http.get(`/config/${1000}`)
+    const { config, locationData } = await http.get(`/config/${deviceId}`)
 
-    console.log("INIT DATA: ", config, locationData)
+    // console.log('INIT DATA: ', config, locationData)
     let openTickets = await JSON.parse(
       fs.readFileSync(`openTickets.json`, 'utf8')
     )
     let logs = await JSON.parse(fs.readFileSync(`logs.json`, 'utf8'))
+    let credit = +fs.readFileSync(`credit.txt`, 'utf8')
 
-    state = { ...state, config, locationData, openTickets, logs }
+    state = { ...state, config, locationData, openTickets, logs, credit }
   } catch (error) {
     console.log('INIT_STATE_ERROR: ', error)
   }

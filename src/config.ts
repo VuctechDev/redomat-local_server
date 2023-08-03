@@ -45,7 +45,7 @@ const getDesksForServices = (data?: {
 }
 
 export const getPrintLocationData = (serviceId: number) => {
-  const { name, city, address, mainLocationName, services } = getLocationData()
+  const { name, city, address, mainLocationName, services, currency } = getLocationData()
   const service = services.filter((item) => item.id === serviceId)[0]
   const { counters, rooms } = getDesksForServices(service)
   return {
@@ -54,5 +54,6 @@ export const getPrintLocationData = (serviceId: number) => {
     serviceName: service.name,
     locationName: mainLocationName,
     address: `${city}, ${address}`,
+    currency
   }
 }

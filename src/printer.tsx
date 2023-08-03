@@ -39,7 +39,7 @@ export const getNewTicketPrintData = async (data: Ticket) => {
     getPrintLocationData(serviceId)
   const displayDate = getDisplayDate()
   const locale = getConfig('locale')
-  const receipt = (
+  const defaultReceipt = (
     <Printer children type="epson" width={32} characterSet="pc437_usa">
       <Text size={{ width: 2, height: 2 }} align="left">
         {locationName}
@@ -70,131 +70,58 @@ export const getNewTicketPrintData = async (data: Ticket) => {
     </Printer>
   )
 
-  const r2 = (
-    <Printer children type="epson" width={32} characterSet="pc852_latin2">
-      <Br />
-      <Br />
-      <Line character="-<3-" bold />
+  return await render(defaultReceipt)
+}
+
+const currencies = {
+  BAM: 'KM',
+  EUR: '€',
+  USD: '$',
+  GBP: '£',
+  RSD: ' RSD',
+}
+
+export const getSelfServiceReceipt = async (data: any) => {
+  const { serviceId, price, sessionCode } = data
+  const { serviceName, locationName, currency } =
+    getPrintLocationData(serviceId)
+  const displayDate = getDisplayDate()
+
+  const selfServiceReceipt = (
+    <Printer children type="epson" width={32} characterSet="pc437_usa">
+      <Text size={{ width: 2, height: 2 }} align="left">
+        {locationName}
+      </Text>
 
       <Br />
+      <Text align="center">{serviceName}</Text>
       <Br />
-      <Text size={{ width: 2, height: 2 }} align="center" bold>
-        Danas nam je divan dan, Divan dan, divan dan, Mojoj dragoj rođendan,
-        Rođendan, rođendan. Živela, živela, I srećna nam bila. Živela, živela, I
-        srećna nam bila. Sreća putuje noć i dan, I traži stan i traži stan.
-        Raširi ruke, ispruži dlan, Srećan ti srećan rođendan. Živela, živela, I
-        srećna nam bila. Živela, živela, I srećna nam bila..
+      <Br />
+      <Text bold={true} size={{ width: 3, height: 5 }} align="center">
+        {price}
+        {currencies[currency]}
       </Text>
       <Br />
       <Br />
+      <QRCode
+        content={JSON.stringify({ code: sessionCode })}
+        cellSize={6}
+        align="center"
+        model="micro"
+      />
       <Br />
-      <Text size={{ width: 2, height: 2 }} align="center" bold>
-        Bebiceee
-      </Text>
-      <Br />
-      <Br />
-      <Br />
-      <Br />
-      <Text size={{ width: 2, height: 2 }} align="center" bold>
-        Srecan Rodjendan!!!
-      </Text>
-      <Br />
-      <Br />
-      <Br />
-      <Br />
-      <Text size={{ width: 2, height: 2 }} align="center" bold>
-        {`VOLIM TE\nPUNOOO!!!`}
-      </Text>
-      <Br />
-      <Br />
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="left" bold>
-        {`Ja se stvarno nadam da se ne ljutis na mene jer tvoje kafice kasne, ja sam ih narucio na vrijeme ali je isporuka prolongirana za sutra :(`}
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="left" bold>
-        {`Narucio sam raznih ukusa i raznih aroma pa cemo moci dugoo da uzivamo u lijepim jutarnjim i popodnevnim kaficama!!`}
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="left" bold>
-        Nadam se da ti se svidja kako je lijepo upakovana ova kutijica :)
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="left" bold>
-        Torticu nisam ja nazalost pravio jer ne znam kako se to radi ali sam
-        svjecice bas ja birao i vjerujem da ti se bas svidjaju a i tortica bi
-        trebala da bude bas ukusna mmmm
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 2, height: 2 }} align="center" bold>
-        Srecan Rodjendan!!!
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="right" bold>
-        Volim te
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="center" bold>
-        Srecan Rodjendan
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="left" bold>
-        Volim te
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="center" bold>
-        Srecan Rodjendan
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="right" bold>
-        Volim te
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="center" bold>
-        Srecan Rodjendan
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="left" bold>
-        Ipak za tebe imam jedno iznenadjenje i danas
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="left" bold>
-        Mislim da ce ti se jako svidjeti
-      </Text>
-      <Br />
-      <Br />
-      <Text size={{ width: 1, height: 1 }} align="left" bold>
-        Provjeri inbox na svom email-u :*
-      </Text>
-      <Br />
-      <Br />
-
-      <Line character="-<3-" bold />
+      <Text align="right">{displayDate}</Text>
 
       <Cut />
     </Printer>
   )
 
-  return await render(receipt)
+  return await render(selfServiceReceipt)
 }
 
-export const newPrint = async (data: Ticket) => {
-  const printData = await getNewTicketPrintData(data)
+export const newPrint = async (data: Uint8Array) => {
   // @ts-ignore
-  outEnd.transfer(printData, (error) => {
+  outEnd.transfer(data, (error) => {
     if (error) {
       console.log('ERROR:', error)
     }

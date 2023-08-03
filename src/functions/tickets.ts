@@ -8,9 +8,10 @@ import {
   getOpenTickets,
   getPendingCount,
   handleOpenTickets,
+  deviceId,
 } from '../store'
 import { getUTC } from './utils'
-import { http } from '../api'
+import { http } from '../http'
 
 export interface Data {
   internalId?: number
@@ -31,7 +32,7 @@ const createItem = (data: Data): Ticket => {
     status: 'pending',
     ...data,
     created,
-    updated: created,
+    assigned: created,
   }
 }
 
@@ -46,8 +47,8 @@ export const createTicket = (data: Data) => {
 
 export const assingTicket = (data: Data, ticket: Ticket) => {
   const { socketId, ...rest } = data
-  const updated = getUTC()
-  const handler = { ...ticket, ...rest, status: 'assigned', updated } as Ticket
+  const assigned = getUTC()
+  const handler = { ...ticket, ...rest, status: 'assigned', assigned } as Ticket
   handleOpenTickets(handler, 'UPDATE')
   return {
     ...handler,
@@ -57,12 +58,12 @@ export const assingTicket = (data: Data, ticket: Ticket) => {
 
 export const closeTicket = async (internalId: number) => {
   try {
-    const updated = getUTC()
+    const closed = getUTC()
     const locationId = getLocationData('_id')
     const { status, ...rest } = getOpenTickets(internalId) as Ticket
-    await http.post('/tickets', { ...rest, updated, locationId })
+    await http.post('/tickets', { ...rest, deviceId, locationId })
     handleOpenTickets({ status, ...rest }, 'REMOVE')
-    createNewLog({ ...rest, updated, locationId })
+    createNewLog({ ...rest, closed, locationId })
   } catch (error) {
     console.log('ERROR', error)
   }
